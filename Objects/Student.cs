@@ -84,3 +84,85 @@ namespace University
       }
       return AllStudents;
     }
+
+    public void Save()
+    {
+      SqlConnection conn = DB.Connection();
+      conn.Open();
+
+      SqlCommand cmd = new SqlCommand("INSERT INTO students (name, enrollDate) OUTPUT INSERTED.id VALUES (@StudentName, @StudentEnrollDate)", conn);
+
+      SqlParameter nameParam = new SqlParameter();
+      nameParam.ParameterName = "@StudentName";
+      nameParam.Value = this.GetName();
+
+      SqlParameter enrollDateParam = new SqlParameter();
+      enrollDateParam.ParameterName = "@StudentEnrollDate";
+      enrollDateParam.Value = this.GetEnrollDate();
+
+      cmd.Parameters.Add(nameParam);
+      cmd.Parameters.Add(enrollDateParam);
+
+      SqlDataReader rdr = cmd.ExecuteReader();
+
+      while(rdr.Read())
+      {
+        this._id = rdr.GetInt32(0);
+      }
+      if (rdr != null)
+      {
+        rdr.Close();
+      }
+      if (conn != null)
+      {
+        conn.Close();
+      }
+    }
+
+    public static Student Find(int id)
+    {
+      SqlConnection conn = DB.Connection();
+      conn.Open();
+
+      SqlCommand cmd = new SqlCommand("SELECT * FROM students WHERE id = @StudentId", conn);
+      SqlParameter studentIdParameter = new SqlParameter();
+      studentIdParameter.ParameterName = "@StudentId";
+      studentIdParameter.Value = id.ToString();
+      cmd.Parameters.Add(studentIdParameter);
+      SqlDataReader rdr = cmd.ExecuteReader();
+
+      int foundStudentId = 0;
+      string foundStudentName = null;
+      DateTime foundStudentEnrollDate = default(DateTime);
+
+      while(rdr.Read())
+      {
+        foundStudentId = rdr.GetInt32(0);
+        foundStudentName = rdr.GetString(1);
+        foundStudentEnrollDate = rdr.GetDateTime(2);
+      }
+      Student foundStudent = new Student(foundStudentName, foundStudentEnrollDate, foundStudentId);
+
+      if (rdr != null)
+      {
+        rdr.Close();
+      }
+      if (conn != null)
+      {
+        conn.Close();
+      }
+      return foundStudent;
+    }
+
+
+    public static void DeleteAll()
+    {
+      SqlConnection conn = DB.Connection();
+      conn.Open();
+      SqlCommand cmd = new SqlCommand("DELETE FROM students;", conn);
+      cmd.ExecuteNonQuery();
+      conn.Close();
+    }
+
+  }
+}
