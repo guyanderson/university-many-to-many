@@ -1,0 +1,20 @@
+@{
+  Layout="Shared/_Layout.cshtml";
+}
+
+
+<h1>Students</h1>
+<ul>
+  @foreach (var student in @Model["students"])
+  {
+    <a href="students/@student.GetId()"><li>@student.GetName()</li></a>
+  }
+</ul>
+
+<h1>Courses</h1>
+<ul>
+  @foreach (var course in @Model["courses"])
+  {
+    <li>@course.GetName()</li>
+  }
+</ul>
